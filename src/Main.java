@@ -1,12 +1,10 @@
-
-
 import javax.swing.*;
 import java.awt.*;
 
-public class View {
+public class Main {
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new View().createLoginView());
+        SwingUtilities.invokeLater(() -> new Main().createLoginView());
     }
 
     private void createLoginView() {
@@ -86,7 +84,7 @@ public class View {
         boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.Y_AXIS));
         boxPanel.setBorder(BorderFactory.createTitledBorder(title));
 
-        boxPanel.add(new JLabel("Sample Line 1 Sample Line 1 Sample Line 1 Sample Line 1"));
+        boxPanel.add(new JLabel("Sample Line 1 Sample Line 1 Sample Line 1 Sample Line 1" ));
         boxPanel.add(new JLabel("Sample Line 2"));
         boxPanel.add(new JLabel("Sample Line 3"));
         boxPanel.add(new JLabel("Sample Line 4"));
@@ -102,7 +100,3 @@ public class View {
         return wrapper;
     }
 }
-
-
-
-
