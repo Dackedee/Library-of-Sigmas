@@ -1,5 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Main {
 
@@ -46,6 +50,47 @@ public class Main {
             frame.revalidate();
             frame.repaint();
         });
+    }
+
+    private ArrayList<User> loadUsersData() throws FileNotFoundException {
+        ArrayList<User> users = new ArrayList<User>();
+
+        String filePath = "src/UsersData.txt";
+
+        File file = new File(filePath);
+        Scanner sc = new Scanner(file);
+
+        while (sc.hasNextLine()) {
+            String line = sc.nextLine();
+            String[] parts = line.split("\\| ");
+
+            for (int i = 0; i < parts.length; i++) {
+                String[] value = parts[i].split(":");
+
+                // If current value is username, create new User instance
+                if (i % 2 == 0) {
+                    // Value is username
+                    User newUser = new User(parts[i], parts[i+1]);
+                    users.add(newUser);
+                }
+            }
+        }
+
+        return users;
+    }
+
+    private boolean isCorrectLogin(String username, String password) throws FileNotFoundException {
+
+        ArrayList<User> users = loadUsersData();
+
+        // Find user in users
+        for (User u : users) {
+            if (u.getUsername().equals(username)) {
+                return u.getPassword().equals(password);
+            }
+        }
+
+        return false;
     }
 
     private void createSearchView(JFrame frame) {

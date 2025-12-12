@@ -5,11 +5,9 @@ public class User {
     BookCollection loanedBooks;
 
     public User(String username, String password) {
-
         this.username = username;
         this.password = password;
         this.loanedBooks = new BookCollection();
-
     }
 
     public String getUsername() {
