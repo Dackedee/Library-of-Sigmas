@@ -35,11 +35,12 @@ public class Book {
     }
 
     public void returnBook(User user) {
-        // TODO: Add check for if user has book loaned
-
-
-
-        amountAvailable++;
+        if (this.usersLoanedTo.contains(user)) {
+            this.usersLoanedTo.remove(user);
+            amountAvailable++;
+        } else {
+            throw new IllegalArgumentException("Book is not loaned to selected user.");
+        }
     }
 
 }
