@@ -6,14 +6,20 @@ public class BookCollection {
     String address;
     ArrayList<Book> books;
 
-    public BookCollection(String name, String address, ArrayList<Book> books) {
-        this.name = name;
-        this.address = address;
+    public BookCollection(ArrayList<Book> books) {
         this.books = books;
     }
 
+    public BookCollection() {
+        this.books = new ArrayList<Book>();
+    }
+
     public void addBook(Book book) {
-        this.books.add(book);
+        if (this.books.contains(book)) {
+            throw new IllegalArgumentException("Supplied book is already in BookCollection.");
+        } else {
+            this.books.add(book);
+        }
     }
 
     public void removeBook(Book book) {
@@ -24,6 +30,10 @@ public class BookCollection {
         } else {
             this.books.remove(bookIndex);
         }
+    }
+
+    public boolean contains(Book book) {
+        return this.books.contains(book);
     }
 
 }

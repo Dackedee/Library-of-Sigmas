@@ -1,5 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Main {
 
@@ -41,11 +45,75 @@ public class Main {
         frame.setVisible(true);
 
         loginButton.addActionListener(e -> {
-            frame.getContentPane().removeAll();
-            createSearchView(frame);
-            frame.revalidate();
-            frame.repaint();
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
+
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Please enter both username and password.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (isCorrectLogin(username, password)) {
+                frame.getContentPane().removeAll();
+                createSearchView(frame);
+                frame.revalidate();
+                frame.repaint();
+            } else {
+                JOptionPane.showMessageDialog(frame, "Incorrect username or password.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
+    }
+
+    private String getValue(String part) {
+        return part.split(":")[1].trim();
+    }
+
+    private ArrayList<User> loadUsersData() {
+        ArrayList<User> users = new ArrayList<User>();
+
+        String filePath = "src/UsersData.txt";
+
+        File file = new File(filePath);
+
+        Scanner sc = null;
+
+        try {
+            sc = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        while (sc.hasNextLine()) {
+            String line = sc.nextLine();
+            String[] parts = line.split("\\| ");
+
+            for (int i = 0; i < parts.length; i++) {
+                // If current value is username, create new User instance
+                if (i % 2 == 0) {
+                    // Value is username
+                    User newUser = new User(getValue(parts[i]), getValue(parts[i + 1]));
+                    users.add(newUser);
+                }
+            }
+        }
+
+        return users;
+    }
+
+    private boolean isCorrectLogin(String username, String password) {
+
+        System.out.println("Checking login for user '" + username + "' with password '" + password + "'");
+
+        ArrayList<User> users = loadUsersData();
+
+        // Find user in users
+        for (User u : users) {
+            if (u.getUsername().equals(username)) {
+                return u.getPassword().equals(password);
+            }
+        }
+
+        return false;
     }
 
     private void createSearchView(JFrame frame) {
