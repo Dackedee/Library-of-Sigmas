@@ -102,8 +102,6 @@ public class Main {
 
     private boolean isCorrectLogin(String username, String password) {
 
-        System.out.println("Checking login for user '" + username + "' with password '" + password + "'");
-
         ArrayList<User> users = loadUsersData();
 
         // Find user in users
