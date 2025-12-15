@@ -9,7 +9,6 @@ public class Main {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new Main().createLoginView());
-
     }
 
     public BookCollection loadData() {
@@ -33,7 +32,6 @@ public class Main {
             String[] parts = line.split("\\| ");
             Book book = new Book(getValue(parts[0]), getValue(parts[1]), Integer.parseInt(getValue(parts[2])), getValue(parts[3]), Integer.parseInt(getValue(parts[4])), getValue(parts[5]), 1);
             collection.addBook(book);
-            System.out.println("Loaded book: " + book.title);
         }
 
         return collection;
