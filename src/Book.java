@@ -7,16 +7,18 @@ public class Book {
     String ISBN;
     int pages;
     String language;
+    int year;
     int amountAvailable;
     int totalAmount;
     ArrayList<User> usersLoanedTo;
 
-    public Book(String title, String author, String ISBN, int pages, String language, int totalAmount) {
+    public Book(String title, String author, int pages, String language, int year, String ISBN, int totalAmount) {
         this.title = title;
         this.author = author;
         this.ISBN = ISBN;
         this.pages = pages;
         this.language = language;
+        this.year = year;
         this.totalAmount = totalAmount;
         this.amountAvailable = totalAmount;
         this.usersLoanedTo = new ArrayList<User>();
@@ -41,6 +43,42 @@ public class Book {
         } else {
             throw new IllegalArgumentException("Book is not loaned to selected user.");
         }
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getISBN() {
+        return ISBN;
+    }
+
+    public int getPages() {
+        return pages;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public int getAmountAvailable() {
+        return amountAvailable;
+    }
+
+    public int getTotalAmount() {
+        return totalAmount;
+    }
+
+    public ArrayList<User> getUsersLoanedTo() {
+        return usersLoanedTo;
     }
 
 }

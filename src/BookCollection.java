@@ -36,4 +36,8 @@ public class BookCollection {
         return this.books.contains(book);
     }
 
+    public ArrayList<Book> getBooks() {
+        return books;
+    }
+
 }

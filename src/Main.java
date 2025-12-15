@@ -7,26 +7,36 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) throws FileNotFoundException {
-        loadData();
+    public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new Main().createLoginView());
 
     }
 
-    public static void loadData() throws FileNotFoundException {
+    public BookCollection loadData() {
 
-        String filePath = "src/books_the_library_system.txt";
+        String filePath = "books_the_library_system.txt";
 
         File file = new File(filePath);
-        Scanner sc = new Scanner(file);
+
+        BookCollection collection = new BookCollection();
+
+        Scanner sc = null;
+
+        try {
+            sc = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String[] parts = line.split("\\| ");
-            for (String part : parts) {
-                String[] keyValue = part.split(":");
-                System.out.println("Key: " + keyValue[0].trim() + ", Value: " + keyValue[1].trim());
-            }
+            Book book = new Book(getValue(parts[0]), getValue(parts[1]), Integer.parseInt(getValue(parts[2])), getValue(parts[3]), Integer.parseInt(getValue(parts[4])), getValue(parts[5]), 1);
+            collection.addBook(book);
+            System.out.println("Loaded book: " + book.title);
         }
+
+        return collection;
     }
 
     private void createLoginView() {
@@ -72,6 +82,7 @@ public class Main {
             }
 
             if (isCorrectLogin(username, password)) {
+                loadData();
                 frame.getContentPane().removeAll();
                 createSearchView(frame);
                 frame.revalidate();
@@ -89,7 +100,7 @@ public class Main {
     private ArrayList<User> loadUsersData() {
         ArrayList<User> users = new ArrayList<User>();
 
-        String filePath = "src/UsersData.txt";
+        String filePath = "UsersData.txt";
 
         File file = new File(filePath);
 
@@ -150,11 +161,18 @@ public class Main {
         boxesContainer.setLayout(new BoxLayout(boxesContainer, BoxLayout.Y_AXIS));
 
         // Add three titled boxes
-        boxesContainer.add(createSampleBox("Results Box 1"));
+        /* boxesContainer.add(createSampleBox("Results Box 1"));
         boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
         boxesContainer.add(createSampleBox("Results Box 2"));
         boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
-        boxesContainer.add(createSampleBox("Results Box 3"));
+        boxesContainer.add(createSampleBox("Results Box 3")); */
+
+        // Add boxes for each book in collection
+        BookCollection collection = loadData();
+        for (Book book : collection.getBooks()) {
+            boxesContainer.add(createBookBox(book));
+            boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
+        }
 
         JScrollPane scrollPane = new JScrollPane(boxesContainer);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -163,6 +181,21 @@ public class Main {
         panel.add(scrollPane, BorderLayout.CENTER);
 
         frame.add(panel);
+    }
+
+    private JPanel createBookBox(Book book) {
+        JPanel boxPanel = new JPanel();
+        boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.Y_AXIS));
+        boxPanel.setBorder(BorderFactory.createTitledBorder(book.getTitle()));
+
+        boxPanel.add(new JLabel("Author: " + book.getAuthor()));
+        boxPanel.add(new JLabel("ISBN: " + book.getISBN()));
+        boxPanel.add(new JLabel("Pages: " + book.getPages()));
+        boxPanel.add(new JLabel("Language: " + book.getLanguage()));
+        boxPanel.add(new JLabel("Year: " + book.year));
+        boxPanel.add(new JLabel("Available Copies: " + book.amountAvailable + "/" + book.totalAmount));
+
+        return boxPanel;
     }
 
     private JPanel createSampleBox(String title) {
