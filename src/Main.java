@@ -160,13 +160,6 @@ public class Main {
         JPanel boxesContainer = new JPanel();
         boxesContainer.setLayout(new BoxLayout(boxesContainer, BoxLayout.Y_AXIS));
 
-        // Add three titled boxes
-        /* boxesContainer.add(createSampleBox("Results Box 1"));
-        boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
-        boxesContainer.add(createSampleBox("Results Box 2"));
-        boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
-        boxesContainer.add(createSampleBox("Results Box 3")); */
-
         // Add boxes for each book in collection
         BookCollection collection = loadData();
         for (Book book : collection.getBooks()) {
@@ -181,6 +174,21 @@ public class Main {
         panel.add(scrollPane, BorderLayout.CENTER);
 
         frame.add(panel);
+
+        searchButton.addActionListener(e -> {
+            String searchTerm = searchField.getText().trim();
+            BookCollection results = collection.find(searchTerm);
+
+            boxesContainer.removeAll();
+
+            for (Book book : results.getBooks()) {
+                boxesContainer.add(createBookBox(book));
+                boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
+            }
+
+            boxesContainer.revalidate();
+            boxesContainer.repaint();
+        });
     }
 
     private JPanel createBookBox(Book book) {
@@ -198,7 +206,7 @@ public class Main {
         return boxPanel;
     }
 
-    private JPanel createSampleBox(String title) {
+    /* private JPanel createSampleBox(String title) {
         JPanel boxPanel = new JPanel();
         boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.Y_AXIS));
         boxPanel.setBorder(BorderFactory.createTitledBorder(title));
@@ -210,7 +218,7 @@ public class Main {
         boxPanel.add(new JLabel("Sample Line 5"));
 
         return boxPanel;
-    }
+    } */
 
     // Utility to horizontally center components
     private Component centerComponent(Component comp) {

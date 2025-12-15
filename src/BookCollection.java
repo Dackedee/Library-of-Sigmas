@@ -36,6 +36,20 @@ public class BookCollection {
         return this.books.contains(book);
     }
 
+    public BookCollection find(String search) {
+        BookCollection results = new BookCollection();
+
+        for (Book book : this.books) {
+            if (book.getTitle().toLowerCase().contains(search.toLowerCase()) ||
+                book.getAuthor().toLowerCase().contains(search.toLowerCase()) ||
+                book.getISBN().toLowerCase().contains(search.toLowerCase())) {
+                results.addBook(book);
+            }
+        }
+
+        return results;
+    }
+
     public ArrayList<Book> getBooks() {
         return books;
     }
