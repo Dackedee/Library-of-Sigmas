@@ -7,8 +7,26 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
+        loadData();
         SwingUtilities.invokeLater(() -> new Main().createLoginView());
+
+    }
+
+    public static void loadData() throws FileNotFoundException {
+
+        String filePath = "src/books_the_library_system.txt";
+
+        File file = new File(filePath);
+        Scanner sc = new Scanner(file);
+        while (sc.hasNextLine()) {
+            String line = sc.nextLine();
+            String[] parts = line.split("\\| ");
+            for (String part : parts) {
+                String[] keyValue = part.split(":");
+                System.out.println("Key: " + keyValue[0].trim() + ", Value: " + keyValue[1].trim());
+            }
+        }
     }
 
     private void createLoginView() {
