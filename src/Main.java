@@ -14,7 +14,7 @@ public class Main {
 
     public BookCollection loadData() {
 
-        String filePath = "books_the_library_system.txt";
+        String filePath = "src/books_the_library_system.txt";
 
         File file = new File(filePath);
 
@@ -83,7 +83,6 @@ public class Main {
 
             if (isCorrectLogin(username, password)) {
                 loadData();
-                frame.getContentPane().removeAll();
                 createSearchView(frame);
                 frame.revalidate();
                 frame.repaint();
@@ -100,7 +99,7 @@ public class Main {
     private ArrayList<User> loadUsersData() {
         ArrayList<User> users = new ArrayList<User>();
 
-        String filePath = "UsersData.txt";
+        String filePath = "src/UsersData.txt";
 
         File file = new File(filePath);
 
@@ -146,6 +145,8 @@ public class Main {
     }
 
     private void createSearchView(JFrame frame) {
+        System.out.println("Creating search view...");
+        frame.getContentPane().removeAll();
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
@@ -200,8 +201,23 @@ public class Main {
         boxPanel.add(new JLabel("ISBN: " + book.getISBN()));
         boxPanel.add(new JLabel("Pages: " + book.getPages()));
         boxPanel.add(new JLabel("Language: " + book.getLanguage()));
-        boxPanel.add(new JLabel("Year: " + book.year));
-        boxPanel.add(new JLabel("Available Copies: " + book.amountAvailable + "/" + book.totalAmount));
+        boxPanel.add(new JLabel("Year: " + book.getYear()));
+
+        JLabel availableLabel = new JLabel("Available Copies: " + book.getAmountAvailable() + "/" + book.getTotalAmount());
+        boxPanel.add(availableLabel);
+
+        JButton borrowButton = new JButton("Borrow");
+        boxPanel.add(borrowButton);
+
+        borrowButton.addActionListener(e -> {
+            try {
+                book.checkOut();
+                availableLabel.setText("Available Copies: " + book.getAmountAvailable() + "/" + book.getTotalAmount());
+            } catch (IllegalStateException ex) {
+                JOptionPane.showMessageDialog(new JFrame(), "No copies available to borrow.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        });
 
         return boxPanel;
     }
