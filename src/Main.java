@@ -13,7 +13,7 @@ public class Main {
 
     public BookCollection loadData() {
 
-        String filePath = "src/books_the_library_system.txt";
+        String filePath = "books_the_library_system.txt";
 
         File file = new File(filePath);
 
@@ -97,7 +97,7 @@ public class Main {
     private ArrayList<User> loadUsersData() {
         ArrayList<User> users = new ArrayList<User>();
 
-        String filePath = "src/UsersData.txt";
+        String filePath = "UsersData.txt";
 
         File file = new File(filePath);
 
@@ -134,7 +134,7 @@ public class Main {
 
         // Find user in users
         for (User u : users) {
-            if (u.getUsername().equals(username)) {
+            if (u.getUsername().toLowerCase().equals(username.toLowerCase())) {
                 return u.getPassword().equals(password);
             }
         }
