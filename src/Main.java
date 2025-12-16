@@ -7,26 +7,34 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) throws FileNotFoundException {
-        loadData();
+    public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new Main().createLoginView());
-
     }
 
-    public static void loadData() throws FileNotFoundException {
+    public BookCollection loadData() {
 
-        String filePath = "src/books_the_library_system.txt";
+        String filePath = "books_the_library_system.txt";
 
         File file = new File(filePath);
-        Scanner sc = new Scanner(file);
+
+        BookCollection collection = new BookCollection();
+
+        Scanner sc = null;
+
+        try {
+            sc = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String[] parts = line.split("\\| ");
-            for (String part : parts) {
-                String[] keyValue = part.split(":");
-                System.out.println("Key: " + keyValue[0].trim() + ", Value: " + keyValue[1].trim());
-            }
+            Book book = new Book(getValue(parts[0]), getValue(parts[1]), Integer.parseInt(getValue(parts[2])), getValue(parts[3]), Integer.parseInt(getValue(parts[4])), getValue(parts[5]), 1);
+            collection.addBook(book);
         }
+
+        return collection;
     }
 
     private void createLoginView() {
@@ -72,7 +80,7 @@ public class Main {
             }
 
             if (isCorrectLogin(username, password)) {
-                frame.getContentPane().removeAll();
+                loadData();
                 createSearchView(frame);
                 frame.revalidate();
                 frame.repaint();
@@ -89,7 +97,7 @@ public class Main {
     private ArrayList<User> loadUsersData() {
         ArrayList<User> users = new ArrayList<User>();
 
-        String filePath = "src/UsersData.txt";
+        String filePath = "UsersData.txt";
 
         File file = new File(filePath);
 
@@ -126,7 +134,7 @@ public class Main {
 
         // Find user in users
         for (User u : users) {
-            if (u.getUsername().equals(username)) {
+            if (u.getUsername().toLowerCase().equals(username.toLowerCase())) {
                 return u.getPassword().equals(password);
             }
         }
@@ -135,6 +143,8 @@ public class Main {
     }
 
     private void createSearchView(JFrame frame) {
+        System.out.println("Creating search view...");
+        frame.getContentPane().removeAll();
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
@@ -149,12 +159,12 @@ public class Main {
         JPanel boxesContainer = new JPanel();
         boxesContainer.setLayout(new BoxLayout(boxesContainer, BoxLayout.Y_AXIS));
 
-        // Add three titled boxes
-        boxesContainer.add(createSampleBox("Results Box 1"));
-        boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
-        boxesContainer.add(createSampleBox("Results Box 2"));
-        boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
-        boxesContainer.add(createSampleBox("Results Box 3"));
+        // Add boxes for each book in collection
+        BookCollection collection = loadData();
+        for (Book book : collection.getBooks()) {
+            boxesContainer.add(createBookBox(book));
+            boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
+        }
 
         JScrollPane scrollPane = new JScrollPane(boxesContainer);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -163,9 +173,54 @@ public class Main {
         panel.add(scrollPane, BorderLayout.CENTER);
 
         frame.add(panel);
+
+        searchButton.addActionListener(e -> {
+            String searchTerm = searchField.getText().trim();
+            BookCollection results = collection.find(searchTerm);
+
+            boxesContainer.removeAll();
+
+            for (Book book : results.getBooks()) {
+                boxesContainer.add(createBookBox(book));
+                boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
+            }
+
+            boxesContainer.revalidate();
+            boxesContainer.repaint();
+        });
     }
 
-    private JPanel createSampleBox(String title) {
+    private JPanel createBookBox(Book book) {
+        JPanel boxPanel = new JPanel();
+        boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.Y_AXIS));
+        boxPanel.setBorder(BorderFactory.createTitledBorder(book.getTitle()));
+
+        boxPanel.add(new JLabel("Author: " + book.getAuthor()));
+        boxPanel.add(new JLabel("ISBN: " + book.getISBN()));
+        boxPanel.add(new JLabel("Pages: " + book.getPages()));
+        boxPanel.add(new JLabel("Language: " + book.getLanguage()));
+        boxPanel.add(new JLabel("Year: " + book.getYear()));
+
+        JLabel availableLabel = new JLabel("Available Copies: " + book.getAmountAvailable() + "/" + book.getTotalAmount());
+        boxPanel.add(availableLabel);
+
+        JButton borrowButton = new JButton("Borrow");
+        boxPanel.add(borrowButton);
+
+        borrowButton.addActionListener(e -> {
+            try {
+                book.checkOut();
+                availableLabel.setText("Available Copies: " + book.getAmountAvailable() + "/" + book.getTotalAmount());
+            } catch (IllegalStateException ex) {
+                JOptionPane.showMessageDialog(new JFrame(), "No copies available to borrow.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        });
+
+        return boxPanel;
+    }
+
+    /* private JPanel createSampleBox(String title) {
         JPanel boxPanel = new JPanel();
         boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.Y_AXIS));
         boxPanel.setBorder(BorderFactory.createTitledBorder(title));
@@ -177,7 +232,7 @@ public class Main {
         boxPanel.add(new JLabel("Sample Line 5"));
 
         return boxPanel;
-    }
+    } */
 
     // Utility to horizontally center components
     private Component centerComponent(Component comp) {
