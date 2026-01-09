@@ -28,8 +28,10 @@ public class Book {
         return amountAvailable > 0;
     }
 
-    public void checkOut() {
+    public void checkOut(User user) {
         if (isAvailable()) {
+            user.addBook(this);
+            this.usersLoanedTo.add(user);
             amountAvailable--;
         } else {
             throw new IllegalStateException("No copies available for checkout.");
@@ -38,10 +40,11 @@ public class Book {
 
     public void returnBook(User user) {
         if (this.usersLoanedTo.contains(user)) {
+            user.removeBook(this);
             this.usersLoanedTo.remove(user);
             amountAvailable++;
         } else {
-            throw new IllegalArgumentException("Book is not loaned to selected user.");
+            throw new IllegalStateException("Book is not loaned to selected user.");
         }
     }
 

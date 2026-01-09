@@ -7,13 +7,15 @@ import java.util.Scanner;
 
 public class Main {
 
+    User activeUser = null;
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new Main().createLoginView());
     }
 
     public BookCollection loadData() {
 
-        String filePath = "books_the_library_system.txt";
+        String filePath = "src/books_the_library_system.txt";
 
         File file = new File(filePath);
 
@@ -79,13 +81,17 @@ public class Main {
                 return;
             }
 
-            if (isCorrectLogin(username, password)) {
+            // Logged-in user or null if incorrect
+            User loginUser = getLoginUser(username, password);
+
+            if (loginUser == null) {
+                JOptionPane.showMessageDialog(frame, "Incorrect username or password.", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
                 loadData();
+                activeUser = loginUser;
                 createSearchView(frame);
                 frame.revalidate();
                 frame.repaint();
-            } else {
-                JOptionPane.showMessageDialog(frame, "Incorrect username or password.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
     }
@@ -97,7 +103,7 @@ public class Main {
     private ArrayList<User> loadUsersData() {
         ArrayList<User> users = new ArrayList<User>();
 
-        String filePath = "UsersData.txt";
+        String filePath = "src/UsersData.txt";
 
         File file = new File(filePath);
 
@@ -126,7 +132,7 @@ public class Main {
         return users;
     }
 
-    private boolean isCorrectLogin(String username, String password) {
+    private User getLoginUser(String username, String password) {
 
         System.out.println("Checking login for user '" + username + "' with password '" + password + "'");
 
@@ -134,12 +140,13 @@ public class Main {
 
         // Find user in users
         for (User u : users) {
-            if (u.getUsername().toLowerCase().equals(username.toLowerCase())) {
-                return u.getPassword().equals(password);
+            if (u.getUsername().equalsIgnoreCase(username)
+                    && u.getPassword().equals(password)) {
+                return u;
             }
         }
 
-        return false;
+        return null;
     }
 
     private void createSearchView(JFrame frame) {
@@ -207,13 +214,24 @@ public class Main {
         JButton borrowButton = new JButton("Borrow");
         boxPanel.add(borrowButton);
 
+        JButton returnButton = new JButton("Return");
+        boxPanel.add(returnButton);
+
         borrowButton.addActionListener(e -> {
             try {
-                book.checkOut();
+                book.checkOut(activeUser);
                 availableLabel.setText("Available Copies: " + book.getAmountAvailable() + "/" + book.getTotalAmount());
             } catch (IllegalStateException ex) {
                 JOptionPane.showMessageDialog(new JFrame(), "No copies available to borrow.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
+            }
+        });
+
+        returnButton.addActionListener(e -> {
+            try {
+                book.returnBook(activeUser);
+                availableLabel.setText("Available Copies: " + book.getAmountAvailable() + "/" + book.getTotalAmount());
+            } catch (IllegalStateException ex) {
+                JOptionPane.showMessageDialog(new JFrame(), "No book to return.");
             }
         });
 
