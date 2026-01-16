@@ -1,0 +1,168 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class FileManager {
+
+    private static boolean activated = true;
+    private static String basePath = "C:\\Users\\07lukeli\\IdeaProjects\\Library\\src\\";
+    private static String booksPath = basePath + "books_the_library_system.txt";
+    private static String usersPath = basePath + "UsersData.txt";
+    private static String loanedBooksPath = basePath + "LoanedBooks.txt";
+
+    private static String content = null;
+
+    public static String getusersPath() {
+        return usersPath;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public boolean isActivated() {
+        return activated;
+    }
+
+    public void createFile() {
+
+        if (!activated || usersPath == null || usersPath.isEmpty()) {
+            System.out.println("FileManager is not activated or usersPath is empty.");
+            return;
+        }
+
+        try {
+
+            File file = new File(usersPath);
+            if (file.createNewFile()) {
+                System.out.println("File created: " + file.getName());
+                writeToFile(content);
+            } else {
+                System.out.println("File already exists.");
+            }
+
+        } catch (IOException e) {
+
+            System.out.println("An error occurred while creating the file.");
+            e.printStackTrace();
+
+        }
+    }
+
+    private static String getValue(String part) {
+        return part.split(":")[1].trim();
+    }
+
+    public static BookCollection loadBooksData() {
+
+        File file = new File(booksPath);
+
+        BookCollection collection = new BookCollection();
+
+        Scanner sc = null;
+
+        try {
+            sc = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        while (sc.hasNextLine()) {
+            String line = sc.nextLine();
+            String[] parts = line.split("\\| ");
+            Book book = new Book(getValue(parts[0]), getValue(parts[1]), Integer.parseInt(getValue(parts[2])), getValue(parts[3]), Integer.parseInt(getValue(parts[4])), getValue(parts[5]), 1);
+            collection.addBook(book);
+        }
+
+        return collection;
+    }
+
+    public static ArrayList<User> loadUsersData() {
+
+        ArrayList<User> users = new ArrayList<User>();
+
+        File file = new File(usersPath);
+
+        Scanner sc = null;
+
+        try {
+            sc = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        while (sc.hasNextLine()) {
+            String line = sc.nextLine();
+            String[] parts = line.split("\\| ");
+            User newUser = new User(getValue(parts[0]), getValue(parts[1]), getValue(parts[2]));
+            users.add(newUser);
+        }
+
+        return users;
+
+    }
+
+    public static BookCollection loadLoanedBooksData() {
+
+        BookCollection allBooks = loadBooksData();
+        BookCollection loanedBooks = new BookCollection();
+
+        File file = new File(loanedBooksPath);
+
+        Scanner sc = null;
+
+        try {
+            sc = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        while (sc.hasNextLine()) {
+            String line = sc.nextLine();
+            String[] parts = line.split("\\| ");
+            String bookISBN = getValue(parts[0].trim());
+            String userId = getValue(parts[1].trim());
+
+            Book book = allBooks.find(bookISBN).getBooks().get(0);
+
+            // Find user in users
+            ArrayList<User> users = loadUsersData();
+            for (User u : users) {
+                if (u.getID().equalsIgnoreCase(userId)) {
+                    u.addBook(book);
+                    loanedBooks.addBook(book);
+                    break;
+                }
+            }
+        }
+
+        return loanedBooks;
+    }
+
+    public void writeToFile(String content) {
+
+        if (!activated || usersPath == null || usersPath.isEmpty() || content == null || content.isEmpty()) {
+            System.out.println("FileManager is not activated or usersPath is empty.");
+            return;
+        }
+
+        try {
+
+            // Write content to file.
+            FileWriter writer = new FileWriter(usersPath);
+            writer.write(content);
+            writer.close();
+            System.out.println("Successfully wrote to the file.");
+
+        } catch (IOException e) {
+
+            System.out.println("An error occurred while writing to the file.");
+            e.printStackTrace();
+
+        }
+    }
+
+}

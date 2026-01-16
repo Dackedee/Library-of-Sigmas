@@ -3,15 +3,21 @@ public class User {
     String username;
     String password;
     BookCollection loanedBooks;
+    String id;
 
-    public User(String username, String password) {
+    public User(String username, String password, String id) {
         this.username = username;
         this.password = password;
+        this.id = id;
         this.loanedBooks = new BookCollection();
     }
 
+    public String getID() {
+        return this.id;
+    }
+
     public String getUsername() {
-        return username;
+        return this.username;
     }
 
     public void setUsername(String username) {
@@ -19,7 +25,7 @@ public class User {
     }
 
     public String getPassword() {
-        return password;
+        return this.password;
     }
 
     public void setPassword(String password) {

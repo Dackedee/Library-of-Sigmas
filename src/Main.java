@@ -1,9 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Main {
 
@@ -11,32 +8,6 @@ public class Main {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new Main().createLoginView());
-    }
-
-    public BookCollection loadData() {
-
-        String filePath = "src/books_the_library_system.txt";
-
-        File file = new File(filePath);
-
-        BookCollection collection = new BookCollection();
-
-        Scanner sc = null;
-
-        try {
-            sc = new Scanner(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        while (sc.hasNextLine()) {
-            String line = sc.nextLine();
-            String[] parts = line.split("\\| ");
-            Book book = new Book(getValue(parts[0]), getValue(parts[1]), Integer.parseInt(getValue(parts[2])), getValue(parts[3]), Integer.parseInt(getValue(parts[4])), getValue(parts[5]), 1);
-            collection.addBook(book);
-        }
-
-        return collection;
     }
 
     private void createLoginView() {
@@ -87,7 +58,7 @@ public class Main {
             if (loginUser == null) {
                 JOptionPane.showMessageDialog(frame, "Incorrect username or password.", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
-                loadData();
+                FileManager.loadBooksData();
                 activeUser = loginUser;
                 createSearchView(frame);
                 frame.revalidate();
@@ -96,47 +67,11 @@ public class Main {
         });
     }
 
-    private String getValue(String part) {
-        return part.split(":")[1].trim();
-    }
-
-    private ArrayList<User> loadUsersData() {
-        ArrayList<User> users = new ArrayList<User>();
-
-        String filePath = "src/UsersData.txt";
-
-        File file = new File(filePath);
-
-        Scanner sc = null;
-
-        try {
-            sc = new Scanner(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        while (sc.hasNextLine()) {
-            String line = sc.nextLine();
-            String[] parts = line.split("\\| ");
-
-            for (int i = 0; i < parts.length; i++) {
-                // If current value is username, create new User instance
-                if (i % 2 == 0) {
-                    // Value is username
-                    User newUser = new User(getValue(parts[i]), getValue(parts[i + 1]));
-                    users.add(newUser);
-                }
-            }
-        }
-
-        return users;
-    }
-
     private User getLoginUser(String username, String password) {
 
         System.out.println("Checking login for user '" + username + "' with password '" + password + "'");
 
-        ArrayList<User> users = loadUsersData();
+        ArrayList<User> users = FileManager.loadUsersData();
 
         // Find user in users
         for (User u : users) {
@@ -167,7 +102,7 @@ public class Main {
         boxesContainer.setLayout(new BoxLayout(boxesContainer, BoxLayout.Y_AXIS));
 
         // Add boxes for each book in collection
-        BookCollection collection = loadData();
+        BookCollection collection = FileManager.loadBooksData();
         for (Book book : collection.getBooks()) {
             boxesContainer.add(createBookBox(book));
             boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
