@@ -1,14 +1,15 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class FileManager {
 
     private static boolean activated = true;
-    private static String basePath = "C:\\Users\\07lukeli\\IdeaProjects\\Library\\src\\";
+    private static String basePath = Paths.get("").toAbsolutePath().toString() + "\\";
     private static String booksPath = basePath + "books_the_library_system.txt";
     private static String usersPath = basePath + "UsersData.txt";
     private static String loanedBooksPath = basePath + "LoanedBooks.txt";
@@ -142,7 +143,37 @@ public class FileManager {
         return loanedBooks;
     }
 
-    public void writeToFile(String content) {
+    public static BookCollection getUserLoanedBooksData(User user) {
+
+        BookCollection loanedBooks = loadLoanedBooksData();
+        BookCollection userLoanedBooks = new BookCollection();
+
+        for (Book book : loanedBooks.getBooks()) {
+            if (book.getUsersLoanedTo().contains(user)) {
+                userLoanedBooks.addBook(book);
+            }
+        }
+
+        return userLoanedBooks;
+    }
+
+    public static void updateUsersData(ArrayList<User> users) {
+
+        if (!activated || usersPath == null || usersPath.isEmpty() || users == null || users.isEmpty()) {
+            System.out.println("FileManager is not activated or usersPath is empty.");
+            return;
+        }
+
+        String fileContent = "";
+
+        for (User user : users) {
+            fileContent += "Username: " + user.getUsername() + " | Password: " + user.getPassword() + " | ID: " + user.getID() + "\n";
+        }
+
+        writeToFile(fileContent);
+    }
+
+    public static void writeToFile(String content) {
 
         if (!activated || usersPath == null || usersPath.isEmpty() || content == null || content.isEmpty()) {
             System.out.println("FileManager is not activated or usersPath is empty.");
@@ -152,7 +183,7 @@ public class FileManager {
         try {
 
             // Write content to file.
-            FileWriter writer = new FileWriter(usersPath);
+            PrintWriter writer = new PrintWriter(usersPath);
             writer.write(content);
             writer.close();
             System.out.println("Successfully wrote to the file.");
