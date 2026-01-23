@@ -174,14 +174,12 @@ public class Main {
         JPanel boxesContainer = new JPanel();
         boxesContainer.setLayout(new BoxLayout(boxesContainer, BoxLayout.Y_AXIS));
 
-        // Add three titled boxes
-        /*
-        boxesContainer.add(createSampleBox("Loan Box 1"));
-        boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
-        boxesContainer.add(createSampleBox("Loan Box 2"));
-        boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
-        boxesContainer.add(createSampleBox("Loan Box 3"));
-        */
+        BookCollection loanedBooks = FileManager.getUserLoanedBooksData(activeUser);
+        for (Book book : loanedBooks.getBooks()) {
+            boxesContainer.add(createBookBox(book));
+            boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
+        }
+
         JScrollPane scrollPane = new JScrollPane(boxesContainer);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 

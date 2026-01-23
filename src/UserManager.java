@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.ArrayList;
 
 public class UserManager {
@@ -16,6 +17,7 @@ public class UserManager {
         String id = (this.users.size() + 1) + "";
         User newUser = new User(username, password, id);
         this.users.add(newUser);
+        FileManager.addUserData(newUser);
         return newUser;
     }
     public void removeUser(User user) {
