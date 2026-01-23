@@ -40,7 +40,7 @@ public class FileManager {
             File file = new File(usersPath);
             if (file.createNewFile()) {
                 System.out.println("File created: " + file.getName());
-                writeToFile(content);
+                writeToFile(usersPath, content);
             } else {
                 System.out.println("File already exists.");
             }
@@ -170,21 +170,37 @@ public class FileManager {
             fileContent += "Username: " + user.getUsername() + " | Password: " + user.getPassword() + " | ID: " + user.getID() + "\n";
         }
 
-        writeToFile(fileContent);
+        writeToFile(usersPath, fileContent);
     }
 
-    public static void writeToFile(String content) {
+    public static void writeToFile(String filePath, String content) {
 
         if (!activated || usersPath == null || usersPath.isEmpty() || content == null || content.isEmpty()) {
             System.out.println("FileManager is not activated or usersPath is empty.");
             return;
         }
 
+        File file = new File(filePath);
+        Scanner sc = null;
+
+        try {
+            sc = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        String fileContent = "";
+
+        while (sc.hasNextLine()) {
+            String line = sc.nextLine();
+            fileContent += line + "\n";
+        }
+
         try {
 
             // Write content to file.
-            PrintWriter writer = new PrintWriter(usersPath);
-            writer.write(content);
+            PrintWriter writer = new PrintWriter(filePath);
+            writer.write(fileContent + content);
             writer.close();
             System.out.println("Successfully wrote to the file.");
 
@@ -194,6 +210,11 @@ public class FileManager {
             e.printStackTrace();
 
         }
+    }
+
+    public static void addLoanedBookData(Book book, User user) {
+        String dataContent = "ISBN: " + book.getISBN() + " | UserID: " + user.getID() + "\n";
+        writeToFile(loanedBooksPath, dataContent);
     }
 
 }

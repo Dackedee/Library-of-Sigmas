@@ -2,9 +2,8 @@ import java.util.ArrayList;
 
 public class UserManager {
     ArrayList<User> users;
-    FileManager fileManager = new FileManager();
     public UserManager() {
-        this.users = this.fileManager.loadUsersData();
+        this.users = FileManager.loadUsersData();
     }
 
     public ArrayList<User> getUsers() {

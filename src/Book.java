@@ -32,6 +32,10 @@ public class Book {
         if (isAvailable()) {
             user.addBook(this);
             this.usersLoanedTo.add(user);
+
+            // Add to loaned books data file
+            FileManager.addLoanedBookData(this, user);
+
             amountAvailable--;
         } else {
             throw new IllegalStateException("No copies available for checkout.");
