@@ -20,8 +20,8 @@ public class Book {
         this.language = language;
         this.year = year;
         this.totalAmount = totalAmount;
-        this.amountAvailable = totalAmount;
         this.usersLoanedTo = new ArrayList<User>();
+        this.amountAvailable = this.totalAmount - this.usersLoanedTo.size();
     }
 
     public boolean isAvailable() {
@@ -31,12 +31,10 @@ public class Book {
     public void checkOut(User user) {
         if (isAvailable()) {
             user.addBook(this);
-            this.usersLoanedTo.add(user);
+            addUserLoanedTo(user);
 
             // Add to loaned books data file
             FileManager.addLoanedBookData(this, user);
-
-            amountAvailable--;
         } else {
             throw new IllegalStateException("No copies available for checkout.");
         }
@@ -45,11 +43,23 @@ public class Book {
     public void returnBook(User user) {
         if (this.usersLoanedTo.contains(user)) {
             user.removeBook(this);
-            this.usersLoanedTo.remove(user);
-            amountAvailable++;
+            removeUserLoanedTo(user);
+
+            // Remove from loaned books data file
+            FileManager.removeLoanedBookData(this, user);
         } else {
             throw new IllegalStateException("Book is not loaned to selected user.");
         }
+    }
+
+    public void addUserLoanedTo(User user) {
+        this.usersLoanedTo.add(user);
+        this.amountAvailable = this.totalAmount - this.usersLoanedTo.size();
+    }
+
+    public void removeUserLoanedTo(User user) {
+        this.usersLoanedTo.remove(user);
+        this.amountAvailable = this.totalAmount - this.usersLoanedTo.size();
     }
 
     public String getTitle() {

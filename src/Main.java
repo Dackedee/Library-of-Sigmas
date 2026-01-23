@@ -65,7 +65,6 @@ public class Main {
                     /// add new user
                     this.activeUser = this.userManager.createUser(username, password);
                     JOptionPane.showMessageDialog(frame, "Registration successful! You can now log in.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    FileManager.loadBooksData();
                     createSearchView(frame);
                     frame.revalidate();
                     frame.repaint();
@@ -91,7 +90,6 @@ public class Main {
             if (loginUser == null) {
                 JOptionPane.showMessageDialog(frame, "Incorrect username or password.", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
-                FileManager.loadBooksData();
                 activeUser = loginUser;
                 createSearchView(frame);
                 frame.revalidate();
@@ -123,6 +121,8 @@ public class Main {
 
         // Add boxes for each book in collection
         BookCollection collection = FileManager.loadBooksData();
+        BookCollection loanedBooks = FileManager.loadLoanedBooksData();
+        FileManager.matchLoanedBooksToUsers(userManager.getUsers(), loanedBooks, collection);
         for (Book book : collection.getBooks()) {
             boxesContainer.add(createBookBox(book));
             boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));

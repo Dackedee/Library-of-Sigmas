@@ -39,4 +39,13 @@ public class UserManager {
         return null;
     }
 
+    public User findUser(String ID) {
+        for (User u : this.users) {
+            if (u.getID().equalsIgnoreCase(ID)) {
+                return u;
+            }
+        }
+        return null;
+    }
+
 }
