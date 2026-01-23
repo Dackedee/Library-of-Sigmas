@@ -5,12 +5,14 @@ import java.util.ArrayList;
 public class Main {
 
     User activeUser = null;
+    UserManager userManager = new UserManager();
+
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new Main().createLoginView());
+        SwingUtilities.invokeLater(() -> new Main().createStartView());
     }
 
-    private void createLoginView() {
+    private void createStartView() {
         JFrame frame = new JFrame("Login Window");
         frame.setSize(600, 1000);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -24,24 +26,56 @@ public class Main {
         JTextField usernameField = new JTextField(20);
         JPasswordField passwordField = new JPasswordField(20);
         JButton loginButton = new JButton("Log In");
+        JButton registerButton = new JButton("Register");
 
         usernameField.setMaximumSize(new Dimension(200, 30));
         passwordField.setMaximumSize(new Dimension(200, 30));
 
         panel.add(centerComponent(new JLabel("Username:")));
         panel.add(centerComponent(usernameField));
-        panel.add(Box.createRigidArea(new Dimension(0, 20)));
+        panel.add(Box.createRigidArea(new Dimension(0, 15)));
 
         panel.add(centerComponent(new JLabel("Password:")));
         panel.add(centerComponent(passwordField));
-        panel.add(Box.createRigidArea(new Dimension(0, 30)));
+        panel.add(Box.createRigidArea(new Dimension(0, 20)));
 
         panel.add(centerComponent(loginButton));
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        panel.add(centerComponent(registerButton));
 
         panel.add(Box.createVerticalGlue());
 
         frame.add(panel);
         frame.setVisible(true);
+
+        registerButton.addActionListener(e -> {
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
+
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Please enter both username and password.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+
+            if (this.userManager.existsUsername(username) == true) {
+                JOptionPane.showMessageDialog(frame, "Username already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                try {
+                    /// add new user
+                    this.activeUser = this.userManager.createUser(username, password);
+                    JOptionPane.showMessageDialog(frame, "Registration successful! You can now log in.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    FileManager.loadBooksData();
+                    createSearchView(frame);
+                    frame.revalidate();
+                    frame.repaint();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame, "Registration failed: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+
+        });
 
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
@@ -53,7 +87,7 @@ public class Main {
             }
 
             // Logged-in user or null if incorrect
-            User loginUser = getLoginUser(username, password);
+            User loginUser = this.userManager.findUser(username, password);
 
             if (loginUser == null) {
                 JOptionPane.showMessageDialog(frame, "Incorrect username or password.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -67,25 +101,9 @@ public class Main {
         });
     }
 
-    private User getLoginUser(String username, String password) {
-
-        System.out.println("Checking login for user '" + username + "' with password '" + password + "'");
-
-        ArrayList<User> users = FileManager.loadUsersData();
-
-        // Find user in users
-        for (User u : users) {
-            if (u.getUsername().equalsIgnoreCase(username)
-                    && u.getPassword().equals(password)) {
-                return u;
-            }
-        }
-
-        return null;
-    }
-
     private void createSearchView(JFrame frame) {
         System.out.println("Creating search view...");
+
         frame.getContentPane().removeAll();
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
@@ -96,6 +114,9 @@ public class Main {
         JButton searchButton = new JButton("Search");
         topPanel.add(searchField);
         topPanel.add(searchButton);
+
+        JButton myLoansButton = new JButton("My loans");
+        topPanel.add(myLoansButton);
 
         // Center scrollable area for the 3 boxes
         JPanel boxesContainer = new JPanel();
@@ -129,6 +150,52 @@ public class Main {
 
             boxesContainer.revalidate();
             boxesContainer.repaint();
+        });
+
+        myLoansButton.addActionListener(e -> {
+            frame.getContentPane().removeAll();
+            createLoanView(frame);
+            frame.revalidate();
+            frame.repaint();
+        });
+    }
+
+    private void createLoanView(JFrame frame){
+        JPanel loanPanel = new JPanel();
+        loanPanel.setLayout(new BorderLayout());
+
+        JPanel headerPanel = new JPanel();
+        JLabel titleText = new JLabel();
+        titleText.setText("MY LOANS");
+
+        headerPanel.add(titleText);
+        JButton homePageButton = new JButton("Home");
+        headerPanel.add(homePageButton);
+
+        JPanel boxesContainer = new JPanel();
+        boxesContainer.setLayout(new BoxLayout(boxesContainer, BoxLayout.Y_AXIS));
+
+        // Add three titled boxes
+        /*
+        boxesContainer.add(createSampleBox("Loan Box 1"));
+        boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
+        boxesContainer.add(createSampleBox("Loan Box 2"));
+        boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
+        boxesContainer.add(createSampleBox("Loan Box 3"));
+        */
+        JScrollPane scrollPane = new JScrollPane(boxesContainer);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        loanPanel.add(headerPanel, BorderLayout.NORTH);
+        loanPanel.add(scrollPane, BorderLayout.CENTER);
+
+        frame.add(loanPanel);
+
+        homePageButton.addActionListener(e -> {
+            frame.getContentPane().removeAll();
+            createSearchView(frame);
+            frame.revalidate();
+            frame.repaint();
         });
     }
 
