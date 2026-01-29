@@ -40,4 +40,8 @@ public class User {
         this.loanedBooks.removeBook(book);
     }
 
+    public BookCollection getLoanedBooks() {
+        return this.loanedBooks;
+    }
+
 }

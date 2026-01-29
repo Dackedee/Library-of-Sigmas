@@ -74,11 +74,34 @@ public class FileManager {
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String[] parts = line.split("\\| ");
-            Book book = new Book(getValue(parts[0]), getValue(parts[1]), Integer.parseInt(getValue(parts[2])), getValue(parts[3]), Integer.parseInt(getValue(parts[4])), getValue(parts[5]), 1);
+
+            Book book = new Book(getValue(parts[0]), getValue(parts[1]), Integer.parseInt(getValue(parts[2])), getValue(parts[3]), Integer.parseInt(getValue(parts[4])), getValue(parts[5]), 5);
             collection.addBook(book);
         }
 
         return collection;
+    }
+
+    public static void matchLoanedBooksToUsers(BookCollection loanedBooks, BookCollection allBooks) {
+        // Denna metod används inte, samma funktion finns i loadLoanedBooksData-metoden.
+        for (Book book : loanedBooks.getBooks()) {
+
+            for (User user : book.getUsersLoanedTo()) {
+                System.out.println("Book " + book.getISBN() + " is loaned to user " + user.getUsername());
+            }
+
+            String bookISBN = book.getISBN();
+            for (User user : UserManager.getUsers()) {
+
+                if (!book.getUsersLoanedTo().contains(user)) {
+                    continue;
+                }
+
+                user.addBook(book);
+                System.out.println("Matched book " + bookISBN + " to user " + user.getUsername());
+                
+            }
+        }
     }
 
     public static ArrayList<User> loadUsersData() {
@@ -106,9 +129,8 @@ public class FileManager {
 
     }
 
-    public static BookCollection loadLoanedBooksData() {
+    public static BookCollection loadLoanedBooksData(BookCollection allBooks) {
 
-        BookCollection allBooks = loadBooksData();
         BookCollection loanedBooks = new BookCollection();
 
         File file = new File(loanedBooksPath);
@@ -119,33 +141,46 @@ public class FileManager {
             sc = new Scanner(file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            return loanedBooks;
         }
 
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String[] parts = line.split("\\| ");
+
+            if (parts.length < 2) continue;
+
             String bookISBN = getValue(parts[0].trim());
             String userId = getValue(parts[1].trim());
 
             Book book = allBooks.find(bookISBN).getBooks().get(0);
 
+            try {
+                loanedBooks.addBook(book);
+            } catch (Exception e) {
+                // Om den redan finns i loanedBooks, gör en kopia
+                Book bookCopy = new Book(book);
+                loanedBooks.addBook(bookCopy);
+            }
+
             // Find user in users
-            ArrayList<User> users = loadUsersData();
-            for (User u : users) {
+            for (User u : UserManager.getUsers()) {
                 if (u.getID().equalsIgnoreCase(userId)) {
                     u.addBook(book);
-                    loanedBooks.addBook(book);
+                    book.addUserLoanedTo(u);
                     break;
                 }
             }
         }
 
+        sc.close();
+
         return loanedBooks;
     }
 
-    public static BookCollection getUserLoanedBooksData(User user) {
+    public static BookCollection getUserLoanedBooksData(User user, BookCollection allBooks) {
 
-        BookCollection loanedBooks = loadLoanedBooksData();
+        BookCollection loanedBooks = loadLoanedBooksData(allBooks);
         BookCollection userLoanedBooks = new BookCollection();
 
         for (Book book : loanedBooks.getBooks()) {
@@ -202,7 +237,6 @@ public class FileManager {
             PrintWriter writer = new PrintWriter(filePath);
             writer.write(fileContent + content);
             writer.close();
-            System.out.println("Successfully wrote to the file.");
 
         } catch (IOException e) {
 
@@ -217,4 +251,39 @@ public class FileManager {
         writeToFile(loanedBooksPath, dataContent);
     }
 
+    public static void removeLoanedBookData(Book book, User user) {
+        // Load all loaned books data
+        File file = new File(loanedBooksPath);
+        ArrayList<String> lines = new ArrayList<String>();
+
+        Scanner sc = null;
+
+        try {
+            sc = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        while (sc.hasNextLine()) {
+            String line = sc.nextLine();
+            lines.add(line);
+        }
+
+        // Rewrite file without the returned book entry
+        try {
+            PrintWriter writer = new PrintWriter(file);
+            for (String line : lines) {
+                int amountReturned = 0;
+                if(line.contains("ISBN: " + book.getISBN() + " | UserID: " + user.getID()) && amountReturned == 0)
+                    amountReturned++;
+                else {
+                    writer.println(line);
+                }
+            }
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred while updating the loaned books file.");
+            e.printStackTrace();
+        }
+    }
 }

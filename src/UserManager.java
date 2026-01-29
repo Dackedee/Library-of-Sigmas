@@ -1,38 +1,44 @@
 import java.util.ArrayList;
 
 public class UserManager {
-    ArrayList<User> users;
-    public UserManager() {
-        this.users = FileManager.loadUsersData();
-    }
+    private static ArrayList<User> users = FileManager.loadUsersData();;
 
-    public ArrayList<User> getUsers() {
-        return this.users;
+    public static ArrayList<User> getUsers() {
+        return users;
     }
-    public void addUser(User user) {
-        this.users.add(user);
+    public static void addUser(User user) {
+        users.add(user);
     }
-    public User createUser(String username, String password) {
-        String id = (this.users.size() + 1) + "";
+    public static User createUser(String username, String password) {
+        String id = (users.size() + 1) + "";
         User newUser = new User(username, password, id);
-        this.users.add(newUser);
+        users.add(newUser);
         return newUser;
     }
-    public void removeUser(User user) {
-        this.users.remove(user);
+    public static void removeUser(User user) {
+        users.remove(user);
     }
-    public Boolean existsUsername(String username) {
-        for (User u : this.users) {
+    public static Boolean existsUsername(String username) {
+        for (User u : users) {
             if (u.getUsername().equalsIgnoreCase(username)) {
                 return true;
             }
         }
         return false;
     }
-    public User findUser(String username, String password) {
-        for (User u : this.users) {
+    public static User findUser(String username, String password) {
+        for (User u : users) {
             if (u.getUsername().equalsIgnoreCase(username)
                     && u.getPassword().equals(password)) {
+                return u;
+            }
+        }
+        return null;
+    }
+
+    public static User findUser(String ID) {
+        for (User u : users) {
+            if (u.getID().equalsIgnoreCase(ID)) {
                 return u;
             }
         }
