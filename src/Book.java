@@ -24,13 +24,26 @@ public class Book {
         this.amountAvailable = this.totalAmount - this.usersLoanedTo.size();
     }
 
+    // Konstruktor för kopiering
+    public Book(Book other) {
+        this.title = other.title;
+        this.author = other.author;
+        this.ISBN = other.ISBN;
+        this.pages = other.pages;
+        this.language = other.language;
+        this.year = other.year;
+        this.totalAmount = other.totalAmount;
+        this.amountAvailable = other.amountAvailable;
+        this.usersLoanedTo = new ArrayList<User>(other.usersLoanedTo);
+    }
+
     public boolean isAvailable() {
         return amountAvailable > 0;
     }
 
     public void checkOut(User user) {
         if (isAvailable()) {
-            user.addBook(this);
+            user.addBook(new Book(this));
             addUserLoanedTo(user);
 
             // Add to loaned books data file

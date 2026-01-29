@@ -15,11 +15,7 @@ public class BookCollection {
     }
 
     public void addBook(Book book) {
-        if (this.books.contains(book)) {
-            throw new IllegalArgumentException("Supplied book is already in BookCollection.");
-        } else {
-            this.books.add(book);
-        }
+        this.books.add(book);
     }
 
     public void removeBook(Book book) {

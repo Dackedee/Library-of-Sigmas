@@ -4,7 +4,6 @@ import java.awt.*;
 public class Main {
 
     User activeUser = null;
-    UserManager userManager = new UserManager();
 
 
     public static void main(String[] args) {
@@ -58,12 +57,12 @@ public class Main {
             }
 
 
-            if (this.userManager.existsUsername(username) == true) {
+            if (UserManager.existsUsername(username) == true) {
                 JOptionPane.showMessageDialog(frame, "Username already exists.", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
                 try {
                     /// add new user
-                    this.activeUser = this.userManager.createUser(username, password);
+                    this.activeUser = UserManager.createUser(username, password);
                     JOptionPane.showMessageDialog(frame, "Registration successful! You can now log in.", "Success", JOptionPane.INFORMATION_MESSAGE);
                     createSearchView(frame);
                     frame.revalidate();
@@ -85,7 +84,7 @@ public class Main {
             }
 
             // Logged-in user or null if incorrect
-            User loginUser = this.userManager.findUser(username, password);
+            User loginUser = UserManager.findUser(username, password);
 
             if (loginUser == null) {
                 JOptionPane.showMessageDialog(frame, "Incorrect username or password.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -121,8 +120,16 @@ public class Main {
 
         // Add boxes for each book in collection
         BookCollection collection = FileManager.loadBooksData();
-        BookCollection loanedBooks = FileManager.loadLoanedBooksData();
-        FileManager.matchLoanedBooksToUsers(userManager.getUsers(), loanedBooks, collection);
+        FileManager.loadLoanedBooksData(collection);
+
+        for (User user : UserManager.getUsers()) {
+            System.out.println("User: " + user.getUsername() + " has loaned books:");
+            for (Book book : user.loanedBooks.getBooks()) {
+                System.out.println(" - " + book.getTitle());
+            }
+        }
+
+        // FileManager.matchLoanedBooksToUsers(loanedBooks, collection);
         for (Book book : collection.getBooks()) {
             boxesContainer.add(createBookBox(book));
             boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
@@ -173,6 +180,11 @@ public class Main {
 
         JPanel boxesContainer = new JPanel();
         boxesContainer.setLayout(new BoxLayout(boxesContainer, BoxLayout.Y_AXIS));
+
+        for (Book book : activeUser.loanedBooks.getBooks()) {
+            boxesContainer.add(createBookBox(book));
+            boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
+        }
 
         // Add three titled boxes
         /*
