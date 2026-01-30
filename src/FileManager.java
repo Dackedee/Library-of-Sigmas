@@ -82,28 +82,6 @@ public class FileManager {
         return collection;
     }
 
-    public static void matchLoanedBooksToUsers(BookCollection loanedBooks, BookCollection allBooks) {
-        // Denna metod används inte, samma funktion finns i loadLoanedBooksData-metoden.
-        for (Book book : loanedBooks.getBooks()) {
-
-            for (User user : book.getUsersLoanedTo()) {
-                System.out.println("Book " + book.getISBN() + " is loaned to user " + user.getUsername());
-            }
-
-            String bookISBN = book.getISBN();
-            for (User user : UserManager.getUsers()) {
-
-                if (!book.getUsersLoanedTo().contains(user)) {
-                    continue;
-                }
-
-                user.addBook(book);
-                System.out.println("Matched book " + bookISBN + " to user " + user.getUsername());
-                
-            }
-        }
-    }
-
     public static ArrayList<User> loadUsersData() {
 
         ArrayList<User> users = new ArrayList<User>();
