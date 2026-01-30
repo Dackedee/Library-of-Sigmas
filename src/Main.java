@@ -138,7 +138,9 @@ public class Main {
 
         searchButton.addActionListener(e -> {
             String searchTerm = searchField.getText().trim();
-            BookCollection results = collection.find(searchTerm);
+            AhoCorasick seachMotor = new AhoCorasick(collection);
+
+            BookCollection results = seachMotor.search(searchTerm);
 
             boxesContainer.removeAll();
 

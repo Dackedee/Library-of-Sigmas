@@ -1,19 +1,52 @@
 import java.util.*;
 
 public class AhoCorasick implements SearchMotor{
+    Map<Book, Integer> keywordHits = new HashMap<>();
+    BookCollection allBooks;
+    AhoCorasick(BookCollection books){
+        allBooks = books;
+        indexBooks(books.getBooks());
+    }
 
     private Node root = new Node();
-    Map<Integer, Integer> keywordHits = new HashMap<>();
+
+
 
     @Override
     public BookCollection search(String text) {
-        return null;
-    }
 
+            keywordHits.clear();
+            score(text, keywordHits);
+
+            List<Map.Entry<Book, Integer>> ranked =
+                    new ArrayList<>(keywordHits.entrySet());
+
+            ranked.sort(Map.Entry.<Book, Integer>comparingByValue().reversed());
+
+            BookCollection result = new BookCollection();
+
+            for (var entry : ranked) {
+                result.addBook(entry.getKey());
+            }
+
+            return result;
+
+    }
+    void indexBooks(List<Book> books) {
+        for (Book b : books) {
+            insertWordPrefixes(b, b.title, 10);
+
+            insertWordPrefixes(b, b.author, 8);
+
+            insertWordPrefixes(b, b.language, 4);
+        }
+
+        buildFailureLinks();
+    }
     private class Keyword {
-        int id;
+        Book book;
         String word;
-        int weight; // importance
+        int weight;
     }
 
 
@@ -23,9 +56,16 @@ public class AhoCorasick implements SearchMotor{
         Node fail;
         List<Keyword> output = new ArrayList<>();
     }
-    void insert_data(int id, String word, int weight){
+
+    private void insertWordPrefixes(Book book, String word, int weight) {
+        for (int i = 1; i <= word.length(); i++) {
+            String prefix = word.substring(0, i);
+            insertData(book, prefix, weight);
+        }
+    }
+    void insertData(Book book, String word, int weight){
         Keyword key = new Keyword();
-        key.id = id;
+        key.book = book;
         key.word = word;
         key.weight = weight;
         this.insert(key);
@@ -73,7 +113,7 @@ public class AhoCorasick implements SearchMotor{
     }
 
     // Search text
-    void score(String text, Map<Integer, Integer> keywordHits) {
+    void score(String text, Map<Book, Integer> keywordHits) {
         Node current = root;
 
         for (int i = 0; i < text.length(); i++) {
@@ -86,7 +126,7 @@ public class AhoCorasick implements SearchMotor{
             current = current.children.getOrDefault(c, root);
 
             for (Keyword k : current.output) {
-                keywordHits.merge(k.id, k.weight, Integer::sum);
+                keywordHits.merge(k.book, k.weight, Integer::sum);
             }
         }
     }

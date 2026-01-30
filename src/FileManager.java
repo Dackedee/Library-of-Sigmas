@@ -10,9 +10,9 @@ public class FileManager {
 
     private static boolean activated = true;
     private static String basePath = Paths.get("").toAbsolutePath().toString() + "\\";
-    private static String booksPath = basePath + "books_the_library_system.txt";
-    private static String usersPath = basePath + "UsersData.txt";
-    private static String loanedBooksPath = basePath + "LoanedBooks.txt";
+    private static String booksPath = basePath + "/src/books_the_library_system.txt";
+    private static String usersPath = basePath + "/src/UsersData.txt";
+    private static String loanedBooksPath = basePath + "/src/LoanedBooks.txt";
 
     private static String content = null;
 
@@ -157,18 +157,17 @@ public class FileManager {
         return userLoanedBooks;
     }
 
-    public static void updateUsersData(ArrayList<User> users) {
+    public static void addUserData(User user) {
 
-        if (!activated || usersPath == null || usersPath.isEmpty() || users == null || users.isEmpty()) {
+        if (!activated || usersPath == null || usersPath.isEmpty() || user == null) {
             System.out.println("FileManager is not activated or usersPath is empty.");
             return;
         }
 
-        String fileContent = "";
 
-        for (User user : users) {
-            fileContent += "Username: " + user.getUsername() + " | Password: " + user.getPassword() + " | ID: " + user.getID() + "\n";
-        }
+
+        String fileContent = "Username: " + user.getUsername() + " | Password: " + user.getPassword() + " | ID: " + user.getID() + "\n";
+
 
         writeToFile(usersPath, fileContent);
     }

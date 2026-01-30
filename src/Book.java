@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Book {
 
@@ -22,6 +23,19 @@ public class Book {
         this.totalAmount = totalAmount;
         this.amountAvailable = totalAmount;
         this.usersLoanedTo = new ArrayList<User>();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Book)) return false;
+        Book b = (Book) o;
+        return this.title.equals(b.title) && author.equals(b.author);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, author);
     }
 
     public boolean isAvailable() {
