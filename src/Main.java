@@ -145,7 +145,9 @@ public class Main {
 
         searchButton.addActionListener(e -> {
             String searchTerm = searchField.getText().trim();
-            BookCollection results = collection.find(searchTerm);
+            AhoCorasick seachMotor = new AhoCorasick(collection);
+
+            BookCollection results = seachMotor.search(searchTerm);
 
             boxesContainer.removeAll();
 
@@ -181,19 +183,13 @@ public class Main {
         JPanel boxesContainer = new JPanel();
         boxesContainer.setLayout(new BoxLayout(boxesContainer, BoxLayout.Y_AXIS));
 
+        BookCollection loanedBooks = FileManager.getUserLoanedBooksData(activeUser, FileManager.loadBooksData());
+        for (Book b : loanedBooks.getBooks()) {
         for (Book book : activeUser.loanedBooks.getBooks()) {
             boxesContainer.add(createBookBox(book));
             boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
         }
 
-        // Add three titled boxes
-        /*
-        boxesContainer.add(createSampleBox("Loan Box 1"));
-        boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
-        boxesContainer.add(createSampleBox("Loan Box 2"));
-        boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
-        boxesContainer.add(createSampleBox("Loan Box 3"));
-        */
         JScrollPane scrollPane = new JScrollPane(boxesContainer);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
@@ -208,7 +204,7 @@ public class Main {
             frame.revalidate();
             frame.repaint();
         });
-    }
+    }}
 
     private JPanel createBookBox(Book book) {
         JPanel boxPanel = new JPanel();

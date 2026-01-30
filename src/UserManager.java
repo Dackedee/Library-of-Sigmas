@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.ArrayList;
 
 public class UserManager {
@@ -12,6 +13,7 @@ public class UserManager {
     public static User createUser(String username, String password) {
         String id = (users.size() + 1) + "";
         User newUser = new User(username, password, id);
+        FileManager.addUserData(newUser);
         users.add(newUser);
         return newUser;
     }
