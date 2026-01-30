@@ -10,9 +10,10 @@ public class UserManager {
         users.add(user);
     }
     public static User createUser(String username, String password) {
-        String id = (users.size() + 1) + "";
+        String id = (users.size()) + "";
         User newUser = new User(username, password, id);
         users.add(newUser);
+        FileManager.createUser(username, password);
         return newUser;
     }
     public static void removeUser(User user) {
@@ -44,5 +45,4 @@ public class UserManager {
         }
         return null;
     }
-
 }

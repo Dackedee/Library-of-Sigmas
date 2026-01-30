@@ -156,6 +156,16 @@ public class FileManager {
         return loanedBooks;
     }
 
+    public static void resetLoanedBooks() {
+        for (User u : UserManager.getUsers()) {
+            u.getLoanedBooks().getBooks().clear();
+        }
+
+        for (Book b : loadBooksData().getBooks()) {
+            b.getUsersLoanedTo().clear();
+        }
+    }
+
     public static BookCollection getUserLoanedBooksData(User user, BookCollection allBooks) {
 
         BookCollection loanedBooks = loadLoanedBooksData(allBooks);
@@ -263,5 +273,11 @@ public class FileManager {
             System.out.println("An error occurred while updating the loaned books file.");
             e.printStackTrace();
         }
+    }
+
+    public static void createUser(String username, String password) {
+        String ID = (UserManager.getUsers().size() + 1) + "";
+        String dataContent = "Username: " + username + " | Password: " + password + " | ID: " + ID + "\n";
+        writeToFile(usersPath, dataContent);
     }
 }
