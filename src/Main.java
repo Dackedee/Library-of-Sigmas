@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
+
 import java.awt.*;
 
 public class Main {
@@ -120,6 +122,8 @@ public class Main {
 
         // Add boxes for each book in collection
         BookCollection collection = FileManager.loadBooksData();
+
+        FileManager.resetLoanedBooks();
         FileManager.loadLoanedBooksData(collection);
 
         for (User user : UserManager.getUsers()) {
@@ -181,7 +185,21 @@ public class Main {
         JPanel boxesContainer = new JPanel();
         boxesContainer.setLayout(new BoxLayout(boxesContainer, BoxLayout.Y_AXIS));
 
+        System.out.println(activeUser.loanedBooks.getBooks().size());
         for (Book book : activeUser.loanedBooks.getBooks()) {
+            // Remove old book box if there is a duplicate
+            for (Component comp : boxesContainer.getComponents()) {
+                if (comp instanceof JPanel) {
+                    System.out.println("Checking for duplicate book box for: " + book.getTitle());
+                    JPanel panel = (JPanel) comp;
+                    TitledBorder tb = (TitledBorder) panel.getBorder();
+                    if (panel.getBorder() != null && tb.getTitle().contains(book.getTitle())) {
+                        boxesContainer.remove(panel);
+                        System.out.println("Removed duplicate book box for: " + book.getTitle());
+                        break;
+                    }
+                }
+            }
             boxesContainer.add(createBookBox(book));
             boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
         }

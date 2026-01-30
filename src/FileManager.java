@@ -82,28 +82,6 @@ public class FileManager {
         return collection;
     }
 
-    public static void matchLoanedBooksToUsers(BookCollection loanedBooks, BookCollection allBooks) {
-        // Denna metod används inte, samma funktion finns i loadLoanedBooksData-metoden.
-        for (Book book : loanedBooks.getBooks()) {
-
-            for (User user : book.getUsersLoanedTo()) {
-                System.out.println("Book " + book.getISBN() + " is loaned to user " + user.getUsername());
-            }
-
-            String bookISBN = book.getISBN();
-            for (User user : UserManager.getUsers()) {
-
-                if (!book.getUsersLoanedTo().contains(user)) {
-                    continue;
-                }
-
-                user.addBook(book);
-                System.out.println("Matched book " + bookISBN + " to user " + user.getUsername());
-                
-            }
-        }
-    }
-
     public static ArrayList<User> loadUsersData() {
 
         ArrayList<User> users = new ArrayList<User>();
@@ -176,6 +154,16 @@ public class FileManager {
         sc.close();
 
         return loanedBooks;
+    }
+
+    public static void resetLoanedBooks() {
+        for (User u : UserManager.getUsers()) {
+            u.getLoanedBooks().getBooks().clear();
+        }
+
+        for (Book b : loadBooksData().getBooks()) {
+            b.getUsersLoanedTo().clear();
+        }
     }
 
     public static BookCollection getUserLoanedBooksData(User user, BookCollection allBooks) {
@@ -285,5 +273,11 @@ public class FileManager {
             System.out.println("An error occurred while updating the loaned books file.");
             e.printStackTrace();
         }
+    }
+
+    public static void createUser(String username, String password) {
+        String ID = (UserManager.getUsers().size() + 1) + "";
+        String dataContent = "Username: " + username + " | Password: " + password + " | ID: " + ID + "\n";
+        writeToFile(usersPath, dataContent);
     }
 }
