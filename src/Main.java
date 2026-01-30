@@ -183,8 +183,8 @@ public class Main {
         JPanel boxesContainer = new JPanel();
         boxesContainer.setLayout(new BoxLayout(boxesContainer, BoxLayout.Y_AXIS));
 
-        BookCollection loanedBooks = FileManager.getUserLoanedBooksData(activeUser);
-        for (Book book : loanedBooks.getBooks()) {
+        BookCollection loanedBooks = FileManager.getUserLoanedBooksData(activeUser, FileManager.loadBooksData());
+        for (Book b : loanedBooks.getBooks()) {
         for (Book book : activeUser.loanedBooks.getBooks()) {
             boxesContainer.add(createBookBox(book));
             boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
@@ -204,7 +204,7 @@ public class Main {
             frame.revalidate();
             frame.repaint();
         });
-    }
+    }}
 
     private JPanel createBookBox(Book book) {
         JPanel boxPanel = new JPanel();
