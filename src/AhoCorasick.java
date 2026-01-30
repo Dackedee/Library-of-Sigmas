@@ -15,11 +15,10 @@ public class AhoCorasick implements SearchMotor{
     @Override
     public BookCollection search(String text) {
 
-            keywordHits.clear();
-            score(text, keywordHits);
+            this.keywordHits.clear();
+            this.score(text.toLowerCase(), keywordHits);
 
-            List<Map.Entry<Book, Integer>> ranked =
-                    new ArrayList<>(keywordHits.entrySet());
+            List<Map.Entry<Book, Integer>> ranked = new ArrayList<>(keywordHits.entrySet());
 
             ranked.sort(Map.Entry.<Book, Integer>comparingByValue().reversed());
 
@@ -41,7 +40,7 @@ public class AhoCorasick implements SearchMotor{
             insertWordPrefixes(b, b.language, 4);
         }
 
-        buildFailureLinks();
+        this.buildFailureLinks();
     }
     private class Keyword {
         Book book;
@@ -57,11 +56,13 @@ public class AhoCorasick implements SearchMotor{
         List<Keyword> output = new ArrayList<>();
     }
 
-    private void insertWordPrefixes(Book book, String word, int weight) {
+    private void insertWordPrefixes(Book book, String field, int weight) {
+        for (String word : field.toLowerCase().split("\\W+")) {
+
         for (int i = 1; i <= word.length(); i++) {
             String prefix = word.substring(0, i);
-            insertData(book, prefix, weight);
-        }
+            this.insertData(book, prefix, weight);
+        } }
     }
     void insertData(Book book, String word, int weight){
         Keyword key = new Keyword();
