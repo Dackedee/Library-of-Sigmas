@@ -5,6 +5,7 @@ public class Main {
 
     User activeUser = null;
     UserManager userManager = new UserManager();
+    AhoCorasick ahoCorasick = new AhoCorasick(FileManager.loadBooksData());
 
 
     public static void main(String[] args) {
@@ -138,7 +139,7 @@ public class Main {
 
         searchButton.addActionListener(e -> {
             String searchTerm = searchField.getText().trim();
-            BookCollection results = collection.find(searchTerm);
+            BookCollection results = ahoCorasick.search(searchTerm);
 
             boxesContainer.removeAll();
 

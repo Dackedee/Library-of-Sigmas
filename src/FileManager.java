@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class FileManager {
 
     private static boolean activated = true;
-    private static String basePath = Paths.get("").toAbsolutePath().toString() + "\\";
+    private static String basePath = Paths.get("").toAbsolutePath().toString() + "\\src\\";
     private static String booksPath = basePath + "books_the_library_system.txt";
     private static String usersPath = basePath + "UsersData.txt";
     private static String loanedBooksPath = basePath + "LoanedBooks.txt";
@@ -84,7 +84,7 @@ public class FileManager {
     public static ArrayList<User> loadUsersData() {
 
         ArrayList<User> users = new ArrayList<User>();
-
+        System.out.print(usersPath);
         File file = new File(usersPath);
 
         Scanner sc = null;
