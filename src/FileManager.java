@@ -76,7 +76,7 @@ public class FileManager {
             String[] parts = line.split("\\| ");
 
             Book book = new Book(getValue(parts[0]), getValue(parts[1]), Integer.parseInt(getValue(parts[2])), getValue(parts[3]), Integer.parseInt(getValue(parts[4])), getValue(parts[5]), 5);
-            collection.addBook(book);
+            collection.add(book);
         }
 
         return collection;
@@ -134,11 +134,11 @@ public class FileManager {
             Book book = allBooks.find(bookISBN).getBooks().get(0);
 
             try {
-                loanedBooks.addBook(book);
+                loanedBooks.add(book);
             } catch (Exception e) {
                 // Om den redan finns i loanedBooks, gör en kopia
                 Book bookCopy = new Book(book);
-                loanedBooks.addBook(bookCopy);
+                loanedBooks.add(bookCopy);
             }
 
             // Find user in users
@@ -173,7 +173,7 @@ public class FileManager {
 
         for (Book book : loanedBooks.getBooks()) {
             if (book.getUsersLoanedTo().contains(user)) {
-                userLoanedBooks.addBook(book);
+                userLoanedBooks.add(book);
             }
         }
 

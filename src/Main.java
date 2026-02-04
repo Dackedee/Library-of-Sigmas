@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class Main {
 
-    User activeUser = null;
+    private User activeUser = null;
 
 
     public static void main(String[] args) {
@@ -64,8 +64,8 @@ public class Main {
             } else {
                 try {
                     /// add new user
-                    this.activeUser = UserManager.createUser(username, password);
-                    JOptionPane.showMessageDialog(frame, "Registration successful! You can now log in.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    this.activeUser = UserManager.create(username, password);
+                    JOptionPane.showMessageDialog(frame, "Registration successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
                     createSearchView(frame);
                     frame.revalidate();
                     frame.repaint();
@@ -86,7 +86,7 @@ public class Main {
             }
 
             // Logged-in user or null if incorrect
-            User loginUser = UserManager.findUser(username, password);
+            User loginUser = UserManager.find(username, password);
 
             if (loginUser == null) {
                 JOptionPane.showMessageDialog(frame, "Incorrect username or password.", "Error", JOptionPane.ERROR_MESSAGE);
