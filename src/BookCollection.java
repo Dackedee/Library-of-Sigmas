@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class BookCollection {
+public class BookCollection implements Repository<Book> {
 
     String name;
     String address;
@@ -14,11 +14,11 @@ public class BookCollection {
         this.books = new ArrayList<Book>();
     }
 
-    public void addBook(Book book) {
+    public void add(Book book) {
         this.books.add(book);
     }
 
-    public void removeBook(Book book) {
+    public void remove(Book book) {
         int bookIndex = this.books.indexOf(book);
 
         if (bookIndex == -1) {
@@ -39,7 +39,7 @@ public class BookCollection {
             if (book.getTitle().toLowerCase().contains(search.toLowerCase()) ||
                 book.getAuthor().toLowerCase().contains(search.toLowerCase()) ||
                 book.getISBN().toLowerCase().contains(search.toLowerCase())) {
-                results.addBook(book);
+                results.add(book);
             }
         }
 

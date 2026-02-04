@@ -33,11 +33,11 @@ public class User {
     }
 
     public void addBook(Book book) {
-        this.loanedBooks.addBook(book);
+        this.loanedBooks.add(book);
     }
 
     public void removeBook(Book book) {
-        this.loanedBooks.removeBook(book);
+        this.loanedBooks.remove(book);
     }
 
     public BookCollection getLoanedBooks() {

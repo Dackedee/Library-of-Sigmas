@@ -6,17 +6,18 @@ public class UserManager {
     public static ArrayList<User> getUsers() {
         return users;
     }
-    public static void addUser(User user) {
+    public static void add(User user) {
         users.add(user);
     }
-    public static User createUser(String username, String password) {
+    public static User create(String username, String password) {
         String id = (users.size()) + "";
         User newUser = new User(username, password, id);
         users.add(newUser);
         FileManager.createUser(username, password);
+        System.out.println(newUser.getUsername() + " created with ID: " + newUser.getID());
         return newUser;
     }
-    public static void removeUser(User user) {
+    public static void remove(User user) {
         users.remove(user);
     }
     public static Boolean existsUsername(String username) {
@@ -27,7 +28,7 @@ public class UserManager {
         }
         return false;
     }
-    public static User findUser(String username, String password) {
+    public static User find(String username, String password) {
         for (User u : users) {
             if (u.getUsername().equalsIgnoreCase(username)
                     && u.getPassword().equals(password)) {
@@ -37,7 +38,7 @@ public class UserManager {
         return null;
     }
 
-    public static User findUser(String ID) {
+    public static User find(String ID) {
         for (User u : users) {
             if (u.getID().equalsIgnoreCase(ID)) {
                 return u;
