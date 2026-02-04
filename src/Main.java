@@ -1,9 +1,11 @@
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
+
 import java.awt.*;
 
 public class Main {
 
-    User activeUser = null;
+    private User activeUser = null;
 
 
     public static void main(String[] args) {
@@ -62,8 +64,8 @@ public class Main {
             } else {
                 try {
                     /// add new user
-                    this.activeUser = UserManager.createUser(username, password);
-                    JOptionPane.showMessageDialog(frame, "Registration successful! You can now log in.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    this.activeUser = UserManager.create(username, password);
+                    JOptionPane.showMessageDialog(frame, "Registration successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
                     createSearchView(frame);
                     frame.revalidate();
                     frame.repaint();
@@ -84,7 +86,7 @@ public class Main {
             }
 
             // Logged-in user or null if incorrect
-            User loginUser = UserManager.findUser(username, password);
+            User loginUser = UserManager.find(username, password);
 
             if (loginUser == null) {
                 JOptionPane.showMessageDialog(frame, "Incorrect username or password.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -120,6 +122,8 @@ public class Main {
 
         // Add boxes for each book in collection
         BookCollection collection = FileManager.loadBooksData();
+
+        FileManager.resetLoanedBooks();
         FileManager.loadLoanedBooksData(collection);
 
         for (User user : UserManager.getUsers()) {
@@ -181,7 +185,21 @@ public class Main {
         JPanel boxesContainer = new JPanel();
         boxesContainer.setLayout(new BoxLayout(boxesContainer, BoxLayout.Y_AXIS));
 
+        System.out.println(activeUser.loanedBooks.getBooks().size());
         for (Book book : activeUser.loanedBooks.getBooks()) {
+            // Remove old book box if there is a duplicate
+            for (Component comp : boxesContainer.getComponents()) {
+                if (comp instanceof JPanel) {
+                    System.out.println("Checking for duplicate book box for: " + book.getTitle());
+                    JPanel panel = (JPanel) comp;
+                    TitledBorder tb = (TitledBorder) panel.getBorder();
+                    if (panel.getBorder() != null && tb.getTitle().contains(book.getTitle())) {
+                        boxesContainer.remove(panel);
+                        System.out.println("Removed duplicate book box for: " + book.getTitle());
+                        break;
+                    }
+                }
+            }
             boxesContainer.add(createBookBox(book));
             boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
         }
