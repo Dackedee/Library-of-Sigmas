@@ -74,8 +74,9 @@ public class FileManager {
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String[] parts = line.split("\\| ");
-            Book book = new Book(getValue(parts[0]), getValue(parts[1]), Integer.parseInt(getValue(parts[2])), getValue(parts[3]), Integer.parseInt(getValue(parts[4])), getValue(parts[5]), 1);
-            collection.addBook(book);
+
+            Book book = new Book(getValue(parts[0]), getValue(parts[1]), Integer.parseInt(getValue(parts[2])), getValue(parts[3]), Integer.parseInt(getValue(parts[4])), getValue(parts[5]), 5);
+            collection.add(book);
         }
 
         return collection;
@@ -106,9 +107,8 @@ public class FileManager {
 
     }
 
-    public static BookCollection loadLoanedBooksData() {
+    public static BookCollection loadLoanedBooksData(BookCollection allBooks) {
 
-        BookCollection allBooks = loadBooksData();
         BookCollection loanedBooks = new BookCollection();
 
         File file = new File(loanedBooksPath);
@@ -119,38 +119,61 @@ public class FileManager {
             sc = new Scanner(file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            return loanedBooks;
         }
 
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String[] parts = line.split("\\| ");
+
+            if (parts.length < 2) continue;
+
             String bookISBN = getValue(parts[0].trim());
             String userId = getValue(parts[1].trim());
 
             Book book = allBooks.find(bookISBN).getBooks().get(0);
 
+            try {
+                loanedBooks.add(book);
+            } catch (Exception e) {
+                // Om den redan finns i loanedBooks, gör en kopia
+                Book bookCopy = new Book(book);
+                loanedBooks.add(bookCopy);
+            }
+
             // Find user in users
-            ArrayList<User> users = loadUsersData();
-            for (User u : users) {
+            for (User u : UserManager.getUsers()) {
                 if (u.getID().equalsIgnoreCase(userId)) {
                     u.addBook(book);
-                    loanedBooks.addBook(book);
+                    book.addUserLoanedTo(u);
                     break;
                 }
             }
         }
 
+        sc.close();
+
         return loanedBooks;
     }
 
-    public static BookCollection getUserLoanedBooksData(User user) {
+    public static void resetLoanedBooks() {
+        for (User u : UserManager.getUsers()) {
+            u.getLoanedBooks().getBooks().clear();
+        }
 
-        BookCollection loanedBooks = loadLoanedBooksData();
+        for (Book b : loadBooksData().getBooks()) {
+            b.getUsersLoanedTo().clear();
+        }
+    }
+
+    public static BookCollection getUserLoanedBooksData(User user, BookCollection allBooks) {
+
+        BookCollection loanedBooks = loadLoanedBooksData(allBooks);
         BookCollection userLoanedBooks = new BookCollection();
 
         for (Book book : loanedBooks.getBooks()) {
             if (book.getUsersLoanedTo().contains(user)) {
-                userLoanedBooks.addBook(book);
+                userLoanedBooks.add(book);
             }
         }
 
@@ -202,7 +225,6 @@ public class FileManager {
             PrintWriter writer = new PrintWriter(filePath);
             writer.write(fileContent + content);
             writer.close();
-            System.out.println("Successfully wrote to the file.");
 
         } catch (IOException e) {
 
@@ -217,4 +239,45 @@ public class FileManager {
         writeToFile(loanedBooksPath, dataContent);
     }
 
+    public static void removeLoanedBookData(Book book, User user) {
+        // Load all loaned books data
+        File file = new File(loanedBooksPath);
+        ArrayList<String> lines = new ArrayList<String>();
+
+        Scanner sc = null;
+
+        try {
+            sc = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        while (sc.hasNextLine()) {
+            String line = sc.nextLine();
+            lines.add(line);
+        }
+
+        // Rewrite file without the returned book entry
+        try {
+            PrintWriter writer = new PrintWriter(file);
+            for (String line : lines) {
+                int amountReturned = 0;
+                if(line.contains("ISBN: " + book.getISBN() + " | UserID: " + user.getID()) && amountReturned == 0)
+                    amountReturned++;
+                else {
+                    writer.println(line);
+                }
+            }
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred while updating the loaned books file.");
+            e.printStackTrace();
+        }
+    }
+
+    public static void createUser(String username, String password) {
+        String ID = (UserManager.getUsers().size() + 1) + "";
+        String dataContent = "Username: " + username + " | Password: " + password + " | ID: " + ID + "\n";
+        writeToFile(usersPath, dataContent);
+    }
 }

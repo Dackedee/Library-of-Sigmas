@@ -1,36 +1,35 @@
 import java.util.ArrayList;
 
 public class UserManager {
-    ArrayList<User> users;
-    public UserManager() {
-        this.users = FileManager.loadUsersData();
-    }
+    private static ArrayList<User> users = FileManager.loadUsersData();;
 
-    public ArrayList<User> getUsers() {
-        return this.users;
+    public static ArrayList<User> getUsers() {
+        return users;
     }
-    public void addUser(User user) {
-        this.users.add(user);
+    public static void add(User user) {
+        users.add(user);
     }
-    public User createUser(String username, String password) {
-        String id = (this.users.size() + 1) + "";
+    public static User create(String username, String password) {
+        String id = (users.size()) + "";
         User newUser = new User(username, password, id);
-        this.users.add(newUser);
+        users.add(newUser);
+        FileManager.createUser(username, password);
+        System.out.println(newUser.getUsername() + " created with ID: " + newUser.getID());
         return newUser;
     }
-    public void removeUser(User user) {
-        this.users.remove(user);
+    public static void remove(User user) {
+        users.remove(user);
     }
-    public Boolean existsUsername(String username) {
-        for (User u : this.users) {
+    public static Boolean existsUsername(String username) {
+        for (User u : users) {
             if (u.getUsername().equalsIgnoreCase(username)) {
                 return true;
             }
         }
         return false;
     }
-    public User findUser(String username, String password) {
-        for (User u : this.users) {
+    public static User find(String username, String password) {
+        for (User u : users) {
             if (u.getUsername().equalsIgnoreCase(username)
                     && u.getPassword().equals(password)) {
                 return u;
@@ -39,4 +38,12 @@ public class UserManager {
         return null;
     }
 
+    public static User find(String ID) {
+        for (User u : users) {
+            if (u.getID().equalsIgnoreCase(ID)) {
+                return u;
+            }
+        }
+        return null;
+    }
 }

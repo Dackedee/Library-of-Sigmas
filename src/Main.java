@@ -1,10 +1,11 @@
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
+
 import java.awt.*;
 
 public class Main {
 
-    User activeUser = null;
-    UserManager userManager = new UserManager();
+    private User activeUser = null;
     AhoCorasick ahoCorasick = new AhoCorasick(FileManager.loadBooksData());
 
 
@@ -59,14 +60,13 @@ public class Main {
             }
 
 
-            if (this.userManager.existsUsername(username) == true) {
+            if (UserManager.existsUsername(username) == true) {
                 JOptionPane.showMessageDialog(frame, "Username already exists.", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
                 try {
                     /// add new user
-                    this.activeUser = this.userManager.createUser(username, password);
-                    JOptionPane.showMessageDialog(frame, "Registration successful! You can now log in.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    FileManager.loadBooksData();
+                    this.activeUser = UserManager.create(username, password);
+                    JOptionPane.showMessageDialog(frame, "Registration successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
                     createSearchView(frame);
                     frame.revalidate();
                     frame.repaint();
@@ -87,12 +87,11 @@ public class Main {
             }
 
             // Logged-in user or null if incorrect
-            User loginUser = this.userManager.findUser(username, password);
+            User loginUser = UserManager.find(username, password);
 
             if (loginUser == null) {
                 JOptionPane.showMessageDialog(frame, "Incorrect username or password.", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
-                FileManager.loadBooksData();
                 activeUser = loginUser;
                 createSearchView(frame);
                 frame.revalidate();
@@ -124,6 +123,18 @@ public class Main {
 
         // Add boxes for each book in collection
         BookCollection collection = FileManager.loadBooksData();
+
+        FileManager.resetLoanedBooks();
+        FileManager.loadLoanedBooksData(collection);
+
+        for (User user : UserManager.getUsers()) {
+            System.out.println("User: " + user.getUsername() + " has loaned books:");
+            for (Book book : user.loanedBooks.getBooks()) {
+                System.out.println(" - " + book.getTitle());
+            }
+        }
+
+        // FileManager.matchLoanedBooksToUsers(loanedBooks, collection);
         for (Book book : collection.getBooks()) {
             boxesContainer.add(createBookBox(book));
             boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
@@ -174,6 +185,25 @@ public class Main {
 
         JPanel boxesContainer = new JPanel();
         boxesContainer.setLayout(new BoxLayout(boxesContainer, BoxLayout.Y_AXIS));
+
+        System.out.println(activeUser.loanedBooks.getBooks().size());
+        for (Book book : activeUser.loanedBooks.getBooks()) {
+            // Remove old book box if there is a duplicate
+            for (Component comp : boxesContainer.getComponents()) {
+                if (comp instanceof JPanel) {
+                    System.out.println("Checking for duplicate book box for: " + book.getTitle());
+                    JPanel panel = (JPanel) comp;
+                    TitledBorder tb = (TitledBorder) panel.getBorder();
+                    if (panel.getBorder() != null && tb.getTitle().contains(book.getTitle())) {
+                        boxesContainer.remove(panel);
+                        System.out.println("Removed duplicate book box for: " + book.getTitle());
+                        break;
+                    }
+                }
+            }
+            boxesContainer.add(createBookBox(book));
+            boxesContainer.add(Box.createRigidArea(new Dimension(0, 15)));
+        }
 
         // Add three titled boxes
         /*

@@ -1,1 +1,3 @@
 Username: Lukas | Password: Sigma123 | ID: 1
+Username: admin | Password: 123 | ID: 3
+Username: Sigma | Password: Skibidi | ID: 4
